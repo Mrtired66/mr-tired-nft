@@ -24,6 +24,27 @@ html
             width: 100%; 
             border-radius: 5px;
         }
+               body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* جلوگیری از اسکرول */
+        }
+        #video-bg {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1; /* قرارگیری در پس‌زمینه */
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            text-align: center;
+            padding-top: 20vh;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
     </style>
     <script>
 document.addEventListener('contextmenu', function(e) {
@@ -38,6 +59,10 @@ document.addEventListener('dragstart', function(e) {
     </script>
 </head>
 <body>
+        <!-- ویدیوی پس‌زمینه -->
+    <video autoplay muted loop id="video-bg">
+        <source src="video.mp4" type="video/mp4">
+    </video>
     <h1>🎨 Mr.tired's NFT Collection</h1>
         <div style="text-align: center;">
     <img src="tired.ami.png" alt="Profile photo" style="width: 150px; border-radius: 50%;">
