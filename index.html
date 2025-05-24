@@ -24,19 +24,26 @@
             width: 100%; 
             border-radius: 5px;
         }
-               body {
+               body, html {
             margin: 0;
             padding: 0;
-            overflow: hidden; /* جلوگیری از اسکرول */
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial;
         }
+
+        /* استایل ویدیوی پس‌زمینه */
         #video-bg {
             position: fixed;
             right: 0;
             bottom: 0;
             min-width: 100%;
             min-height: 100%;
-            z-index: -1; /* قرارگیری در پس‌زمینه */
+            z-index: -1;
+            object-fit: cover;
         }
+
+        /* استایل محتوای اصلی */
         .content {
             position: relative;
             z-index: 1;
@@ -44,6 +51,39 @@
             text-align: center;
             padding-top: 20vh;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        /* استایل دکمه کنترل صدا */
+        .sound-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        #sound-btn {
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #sound-btn:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        /* استایل نسخه موبایل */
+        @media (max-width: 768px) {
+            .content {
+                padding-top: 10vh;
+            }
+            #sound-btn {
+                width: 35px;
+                height: 35px;
+            }
         }
     </style>
     <script>
@@ -59,10 +99,16 @@ document.addEventListener('dragstart', function(e) {
     </script>
 </head>
 <body>
-        <!-- ویدیوی پس‌زمینه -->
+         <!-- ویدیوی پس‌زمینه (حالت پیش‌فرض: بی‌صدا) -->
     <video autoplay muted loop id="video-bg">
         <source src="video.mp4" type="video/mp4">
+    Your browser does not support video.
     </video>
+
+    <!-- دکمه کنترل صدا -->
+    <div class="sound-control">
+        <button id="sound-btn" title="Voice control">🔇</button>
+    </div>
     <h1>🎨 Mr.tired's NFT Collection</h1>
         <div style="text-align: center;">
     <img src="tired.ami.png" alt="Profile photo" style="width: 150px; border-radius: 50%;">
@@ -75,5 +121,28 @@ document.addEventListener('dragstart', function(e) {
 
 
     <p>👉 <a href="https://opensea.io" target="_blank">Buy on OpenSea</a></p>
+    
+    <!-- اسکریپت کنترل صدا -->
+    <script>
+        const video = document.getElementById('video-bg');
+        const soundBtn = document.getElementById('sound-btn');
+
+        // کنترل کلیک دکمه صدا
+        soundBtn.addEventListener('click', function() {
+            video.muted = !video.muted;
+            this.textContent = video.muted ? '🔇' : '🔊';
+            
+            // برای مرورگرهای سخت‌گیر
+            if(!video.muted) {
+                video.play().catch(e => console.log("Audio playback error:", e));
+            }
+        });
+
+        // فعال کردن پخش در موبایل پس از تعامل کاربر
+        document.body.addEventListener('click', function initVideo() {
+            video.play().catch(e => console.log("Waiting for interaction..."));
+            document.body.removeEventListener('click', initVideo);
+        }, { once: true });
+    </script>
 </body>
 </html>
