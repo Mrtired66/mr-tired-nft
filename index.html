@@ -25,6 +25,17 @@ html
             border-radius: 5px;
         }
     </style>
+    <script>
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault(); // مسدود کردن کلیک راست
+});
+
+document.addEventListener('dragstart', function(e) {
+    if (e.target.tagName === 'IMG') {
+        e.preventDefault(); // مسدود کردن کشیدن عکس
+    }
+});
+    </script>
 </head>
 <body>
     <h1>🎨 Mr.tired's NFT Collection</h1>
