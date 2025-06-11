@@ -158,5 +158,30 @@ document.addEventListener('dragstart', function(e) {
             document.body.removeEventListener('click', initVideo);
         }, { once: true });
     </script>
+    <div class="nft-container">
+    <img 
+        src="PALLEMIAJ.jpg" 
+        alt="NFT Cover Art" 
+        class="nft-image"
+        oncontextmenu="return false;"
+    >
+</div>
+
+<style>
+    .nft-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+    }
+    
+    .nft-image {
+        width: 300px; /* یا هر سایز متوسطی که می‌خواهید */
+        height: auto;
+        max-width: 100%;
+        pointer-events: none; /* جلوگیری از کلیک راست و drag */
+        user-select: none; /* جلوگیری از انتخاب تصویر */
+    }
+</style>
 </body>
 </html>
