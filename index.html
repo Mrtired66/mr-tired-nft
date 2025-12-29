@@ -1,214 +1,94 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
-    <title>Mr.tired's NFT Gallery</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مسیر پاکی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.css" rel="stylesheet">
     <style>
-        body { 
-            font-family: Arial; 
-            text-align: center; 
-            background: #f0f0f0;
-            padding: 20px;
-        }
-        h1 { color: #333; }
-        .nft { 
-            background: white;
-            margin: 20px auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 400px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        img { 
-            width: 100%; 
-            border-radius: 5px;
-        }
-               body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-            font-family: Arial;
-        }
-
-        /* استایل ویدیوی پس‌زمینه */
-        #video-bg {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%;
-            min-height: 100%;
-            z-index: -1;
-            object-fit: cover;
-        }
-
-        /* استایل محتوای اصلی */
-        .content {
-            position: relative;
-            z-index: 1;
-            color: white;
-            text-align: center;
-            padding-top: 20vh;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-        }
-
-        /* استایل دکمه کنترل صدا */
-        .sound-control {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-        #sound-btn {
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        #sound-btn:hover {
-            background: rgba(0,0,0,0.8);
-        }
-
-        /* استایل نسخه موبایل */
-        @media (max-width: 768px) {
-            .content {
-                padding-top: 10vh;
-            }
-            #sound-btn {
-                width: 35px;
-                height: 35px;
-            }
-        }
-        #sound-btn {
-    background: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 120px;  /* افزایش عرض */
-    height: 120px; /* افزایش ارتفاع */
-    font-size: 60px; /* افزایش سایز آیکون */
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-        }
+        @keyframes dash { to { stroke-dashoffset: 0; } }
+        body { background-color: #050505; color: white; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: manipulation; }
+        .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); }
+        * { -webkit-tap-highlight-color: transparent; }
     </style>
-    <script>
-document.addEventListener('contextmenu', function(e) {
-    e.preventDefault(); // مسدود کردن کلیک راست
-});
-
-document.addEventListener('dragstart', function(e) {
-    if (e.target.tagName === 'IMG') {
-        e.preventDefault(); // مسدود کردن کشیدن عکس
-    }
-});
-    </script>
 </head>
 <body>
-         <!-- ویدیوی پس‌زمینه (حالت پیش‌فرض: بی‌صدا) -->
-    <video autoplay muted loop id="video-bg">
-        <source src="video.mp4" type="video/mp4">
-    Your browser does not support video.
-    </video>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        function App() {
+            const [streak, setStreak] = useState(0);
+            const [isCheckedInToday, setIsCheckedInToday] = useState(false);
+            const [isAnimating, setIsAnimating] = useState(false);
 
-    <!-- دکمه کنترل صدا -->
-    <div class="sound-control">
-        <button id="sound-btn" title="Voice control">🔇</button>
-    </div>
-    <h1>🎨 Mr.tired's NFT Collection</h1>
-        <div style="text-align: center;">
-    <img src="tired.ami.png" alt="Profile photo" style="width: 150px; border-radius: 50%;">
-        </div>
-    
-    
+            useEffect(() => {
+                const savedStreak = localStorage.getItem('habit_streak');
+                const savedLastDate = localStorage.getItem('habit_last_date');
+                if (savedStreak) setStreak(parseInt(savedStreak));
+                if (savedLastDate) {
+                    const today = new Date().toDateString();
+                    if (today === new Date(savedLastDate).toDateString()) setIsCheckedInToday(true);
+                }
+            }, []);
 
+            const handleCheckIn = () => {
+                if (isCheckedInToday || isAnimating) return;
+                setIsAnimating(true);
+                setTimeout(() => {
+                    const newStreak = streak + 1;
+                    const now = new Date();
+                    setStreak(newStreak);
+                    setIsCheckedInToday(true);
+                    localStorage.setItem('habit_streak', newStreak);
+                    localStorage.setItem('habit_last_date', now.toISOString());
+                    setIsAnimating(false);
+                }, 1500);
+            };
 
-    <p>👉 <a href="https://opensea.io" target="_blank">Buy on OpenSea</a></p>
-    
-    <!-- اسکریپت کنترل صدا -->
-    <script>
-        const video = document.getElementById('video-bg');
-        const soundBtn = document.getElementById('sound-btn');
-
-        // کنترل کلیک دکمه صدا
-        soundBtn.addEventListener('click', function() {
-            video.muted = !video.muted;
-            this.textContent = video.muted ? '🔇' : '🔊';
-            
-            // برای مرورگرهای سخت‌گیر
-            if(!video.muted) {
-                video.play().catch(e => console.log("Audio playback error:", e));
-            }
-        });
-
-        // فعال کردن پخش در موبایل پس از تعامل کاربر
-        document.body.addEventListener('click', function initVideo() {
-            video.play().catch(e => console.log("Waiting for interaction..."));
-            document.body.removeEventListener('click', initVideo);
-        }, { once: true });
+            return (
+                <div className="min-h-screen flex flex-col items-center relative overflow-hidden select-none">
+                    <div className="fixed inset-0 bg-noise pointer-events-none opacity-40"></div>
+                    <header className="w-full p-6 flex justify-between items-center z-10">
+                        <div className="flex items-center gap-2 text-teal-500/80">
+                            <i data-lucide="shield-check" className="w-5 h-5"></i>
+                            <span className="text-[10px] font-bold tracking-[0.3em] uppercase">مسیر پاکی</span>
+                        </div>
+                    </header>
+                    <main className="flex-1 flex flex-col items-center justify-center w-full z-10 px-4">
+                        <div className="mb-12 text-center h-20 flex flex-col justify-end">
+                            <h2 className={`text-2xl font-light transition-all duration-700 ${isCheckedInToday ? 'text-teal-400' : 'text-white'}`}>
+                                {isCheckedInToday ? "امروز ثبت شد" : "روزِ خود را ثبت کن"}
+                            </h2>
+                        </div>
+                        <div className="relative flex items-center justify-center">
+                            {!isCheckedInToday && !isAnimating && <div className="absolute w-56 h-56 border border-teal-500/20 rounded-full animate-ping"></div>}
+                            <button onClick={handleCheckIn} className={`relative w-64 h-64 rounded-full flex flex-col items-center justify-center transition-all duration-500 border ${isCheckedInToday ? 'border-teal-500/50 shadow-[0_0_40px_rgba(20,184,166,0.1)]' : 'bg-[#0A0A0A] border-neutral-800'}`}>
+                                {isAnimating && (
+                                    <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="48" fill="none" stroke="#14b8a6" strokeWidth="2" strokeDasharray="301.6" strokeDashoffset="301.6" style={{animation: 'dash 1.5s linear forwards'}} />
+                                    </svg>
+                                )}
+                                <div className="flex flex-col items-center">
+                                    <span className={`text-7xl font-light ${isCheckedInToday ? 'text-teal-400' : 'text-neutral-600'}`}>{streak}</span>
+                                    <span className="text-neutral-500 text-[10px] mt-2 tracking-[0.4em]">روز</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div className="mt-16 text-neutral-500 text-sm font-light italic text-center max-w-[250px]">
+                            {streak === 0 ? "اولین قدم، مهم‌ترین قدم است." : "تو قوی‌تر از تمایلاتت هستی."}
+                        </div>
+                    </main>
+                    <footer className="w-full p-8 text-center z-10 opacity-30 text-[10px]">تداوم، کلید پیروزی است</footer>
+                </div>
+            );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 500);
     </script>
-    
-    <div class="nft-container">
-    <img 
-        src="PALLEMIAJ.png" 
-        alt="NFT Cover Art" 
-        class="nft-image"
-        oncontextmenu="return false;"
-    >
-    <div class="nft-price">ETH = 0.10</div>
-        <br>
-        <br>
-
-        <br>
-        <img 
-        src="Liberate The Karma.png" 
-        alt="NFT Cover Art" 
-        class="nft-image"
-        oncontextmenu="return false;"
-    >
-    <div class="nft-price">ETH = 0.05</div>
-</div>
-
-<style>
-    .nft-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 20px 0;
-        text-align: center;
-    }
-    
-    .nft-image {
-        width: 500px;
-        height: auto;
-        max-width: 100%;
-        pointer-events: none;
-        user-select: none;
-        margin-bottom: 15px; /* فاصله بین تصویر و قیمت */
-    }
-    
-    .nft-price {
-        font-size: 24px;
-        font-weight: bold;
-        color: #ffffff; /* رنگ سفید */
-        background-color: #000000; /* پس زمینه مشکی */
-        padding: 8px 20px;
-        border-radius: 5px;
-        font-family: Arial, sans-serif;
-    }
-</style>
-
-    
-    
-
 </body>
 </html>
