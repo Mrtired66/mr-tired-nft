@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مسیر پاکی</title>
+    <title>مسیر پاکی | Purity Path</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -11,33 +11,133 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.css" rel="stylesheet">
     <style>
         @keyframes dash { to { stroke-dashoffset: 0; } }
-        body { background-color: #050505; color: white; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: manipulation; }
-        .bg-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E"); }
+        
+        /* انیمیشن موج‌های آرام دریا */
+        @keyframes wave-slow {
+            0% { transform: scale(1) rotate(0deg); border-radius: 40% 45% 42% 48%; opacity: 0.2; }
+            50% { transform: scale(1.1) rotate(180deg); border-radius: 45% 40% 48% 42%; opacity: 0.1; }
+            100% { transform: scale(1) rotate(360deg); border-radius: 40% 45% 42% 48%; opacity: 0.2; }
+        }
+
+        /* انیمیشن موج‌های خروشان و سریع */
+        @keyframes wave-fast {
+            0% { transform: scale(1) rotate(0deg); border-radius: 35% 50% 30% 55%; opacity: 0.6; }
+            50% { transform: scale(1.3) rotate(180deg); border-radius: 50% 35% 55% 30%; opacity: 0.4; }
+            100% { transform: scale(1) rotate(360deg); border-radius: 35% 50% 30% 55%; opacity: 0.6; }
+        }
+
+        body { 
+            background-color: #050505; 
+            color: white; 
+            margin: 0; 
+            font-family: system-ui, -apple-system, sans-serif; 
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .bg-noise {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        .wave {
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            border: 2px solid rgba(20, 184, 166, 0.3);
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .wave-1 { animation: wave-slow 12s infinite linear; }
+        .wave-2 { animation: wave-slow 8s infinite linear reverse; border-color: rgba(20, 184, 166, 0.15); }
+        .wave-3 { animation: wave-slow 15s infinite linear; border-color: rgba(20, 184, 166, 0.1); }
+
+        /* استایل حالت خروشان (Raging) */
+        .raging .wave {
+            animation-duration: 2s !important;
+            border-color: rgba(20, 184, 166, 0.8) !important;
+            border-width: 4px;
+            box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+        }
+        .raging .wave-1 { animation-name: wave-fast; }
+        .raging .wave-2 { animation-name: wave-fast; animation-direction: reverse; }
+        .raging .wave-3 { animation-name: wave-fast; }
+
         * { -webkit-tap-highlight-color: transparent; }
+        .rtl { direction: rtl; }
+        .ltr { direction: ltr; }
     </style>
 </head>
 <body>
     <div id="root"></div>
+
     <script type="text/babel">
         const { useState, useEffect } = React;
+
+        const translations = {
+            fa: {
+                title: "مسیر پاکی",
+                todayDone: "امروز ثبت شد",
+                recordDay: "روزِ خود را ثبت کن",
+                days: "روز",
+                quote: "تو قوی‌تر از تمایلاتت هستی.",
+                firstStep: "اولین قدم، مهم‌ترین قدم است.",
+                footer: "تداوم، کلید پیروزی است",
+                settings: "تنظیمات",
+                language: "زبان / Language",
+                resetBtn: "ریست کردن شمارنده",
+                resetDesc: "آیا مطمئن هستید؟ تمام پیشرفت شما صفر خواهد شد.",
+                close: "بستن",
+                confirm: "بله، ریست شود"
+            },
+            en: {
+                title: "PURITY PATH",
+                todayDone: "Today Completed",
+                recordDay: "Record Your Day",
+                days: "DAYS",
+                quote: "You are stronger than your desires.",
+                firstStep: "The first step is the most important.",
+                footer: "Consistency is the key to victory",
+                settings: "Settings",
+                language: "Language / زبان",
+                resetBtn: "Reset Streak",
+                resetDesc: "Are you sure? All your progress will be lost.",
+                close: "Close",
+                confirm: "Yes, Reset"
+            }
+        };
+
         function App() {
             const [streak, setStreak] = useState(0);
             const [isCheckedInToday, setIsCheckedInToday] = useState(false);
             const [isAnimating, setIsAnimating] = useState(false);
+            const [isRaging, setIsRaging] = useState(false);
+            const [lang, setLang] = useState('fa');
+            const [showSettings, setShowSettings] = useState(false);
+            const [showConfirm, setShowConfirm] = useState(false);
+
+            const t = translations[lang];
 
             useEffect(() => {
                 const savedStreak = localStorage.getItem('habit_streak');
                 const savedLastDate = localStorage.getItem('habit_last_date');
+                const savedLang = localStorage.getItem('habit_lang');
+                
                 if (savedStreak) setStreak(parseInt(savedStreak));
+                if (savedLang) setLang(savedLang);
+                
                 if (savedLastDate) {
                     const today = new Date().toDateString();
-                    if (today === new Date(savedLastDate).toDateString()) setIsCheckedInToday(true);
+                    const last = new Date(savedLastDate).toDateString();
+                    if (today === last) setIsCheckedInToday(true);
                 }
             }, []);
 
             const handleCheckIn = () => {
                 if (isCheckedInToday || isAnimating) return;
                 setIsAnimating(true);
+                setIsRaging(true);
+                
                 setTimeout(() => {
                     const newStreak = streak + 1;
                     const now = new Date();
@@ -46,49 +146,132 @@
                     localStorage.setItem('habit_streak', newStreak);
                     localStorage.setItem('habit_last_date', now.toISOString());
                     setIsAnimating(false);
+                    // بعد از ثبت، ۲ ثانیه خروشان بماند و بعد آرام شود
+                    setTimeout(() => setIsRaging(false), 2000);
                 }, 1500);
             };
 
+            const toggleLang = () => {
+                const newLang = lang === 'fa' ? 'en' : 'fa';
+                setLang(newLang);
+                localStorage.setItem('habit_lang', newLang);
+            };
+
+            const resetProgress = () => {
+                setStreak(0);
+                setIsCheckedInToday(false);
+                localStorage.removeItem('habit_streak');
+                localStorage.removeItem('habit_last_date');
+                setShowConfirm(false);
+                setShowSettings(false);
+            };
+
             return (
-                <div className="min-h-screen flex flex-col items-center relative overflow-hidden select-none">
+                <div className={`min-h-screen flex flex-col items-center relative overflow-hidden select-none ${lang === 'fa' ? 'rtl' : 'ltr'}`}>
                     <div className="fixed inset-0 bg-noise pointer-events-none opacity-40"></div>
-                    <header className="w-full p-6 flex justify-between items-center z-10">
+                    
+                    {/* هدر - آیکون تنظیمات در سمت چپ قرار گرفت */}
+                    <header className={`w-full p-6 flex items-center z-10 ${lang === 'fa' ? 'flex-row-reverse' : 'flex-row'}`}>
                         <div className="flex items-center gap-2 text-teal-500/80">
                             <i data-lucide="shield-check" className="w-5 h-5"></i>
-                            <span className="text-[10px] font-bold tracking-[0.3em] uppercase">مسیر پاکی</span>
+                            <span className="text-[10px] font-bold tracking-[0.3em] uppercase">{t.title}</span>
+                        </div>
+                        <div className="flex-1">
+                            <button onClick={() => setShowSettings(true)} className="p-2 text-neutral-500 hover:text-white transition-colors">
+                                <i data-lucide="settings" className="w-6 h-6"></i>
+                            </button>
                         </div>
                     </header>
+
                     <main className="flex-1 flex flex-col items-center justify-center w-full z-10 px-4">
-                        <div className="mb-12 text-center h-20 flex flex-col justify-end">
+                        <div className="mb-12 h-20 flex flex-col justify-end text-center">
                             <h2 className={`text-2xl font-light transition-all duration-700 ${isCheckedInToday ? 'text-teal-400' : 'text-white'}`}>
-                                {isCheckedInToday ? "امروز ثبت شد" : "روزِ خود را ثبت کن"}
+                                {isCheckedInToday ? t.todayDone : t.recordDay}
                             </h2>
                         </div>
-                        <div className="relative flex items-center justify-center">
-                            {!isCheckedInToday && !isAnimating && <div className="absolute w-56 h-56 border border-teal-500/20 rounded-full animate-ping"></div>}
-                            <button onClick={handleCheckIn} className={`relative w-64 h-64 rounded-full flex flex-col items-center justify-center transition-all duration-500 border ${isCheckedInToday ? 'border-teal-500/50 shadow-[0_0_40px_rgba(20,184,166,0.1)]' : 'bg-[#0A0A0A] border-neutral-800'}`}>
+
+                        <div className={`relative flex items-center justify-center ${isRaging ? 'raging' : ''}`}>
+                            {/* لایه‌های امواج دریا */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="wave wave-1"></div>
+                                <div className="wave wave-2"></div>
+                                <div className="wave wave-3"></div>
+                            </div>
+                            
+                            <button 
+                                onPointerDown={() => !isCheckedInToday && setIsRaging(true)}
+                                onPointerUp={() => !isAnimating && !isCheckedInToday && setIsRaging(false)}
+                                onPointerLeave={() => !isAnimating && !isCheckedInToday && setIsRaging(false)}
+                                onClick={handleCheckIn}
+                                disabled={isCheckedInToday || isAnimating}
+                                className={`relative w-64 h-64 rounded-full flex flex-col items-center justify-center transition-all duration-500 border z-20 ${isCheckedInToday ? 'bg-black border-teal-500/50 shadow-[0_0_50px_rgba(20,184,166,0.2)]' : 'bg-[#0A0A0A] border-neutral-800 active:scale-95'}`}
+                            >
                                 {isAnimating && (
                                     <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
                                         <circle cx="50" cy="50" r="48" fill="none" stroke="#14b8a6" strokeWidth="2" strokeDasharray="301.6" strokeDashoffset="301.6" style={{animation: 'dash 1.5s linear forwards'}} />
                                     </svg>
                                 )}
                                 <div className="flex flex-col items-center">
-                                    <span className={`text-7xl font-light ${isCheckedInToday ? 'text-teal-400' : 'text-neutral-600'}`}>{streak}</span>
-                                    <span className="text-neutral-500 text-[10px] mt-2 tracking-[0.4em]">روز</span>
+                                    <span className={`text-7xl font-light tracking-tighter ${isCheckedInToday ? 'text-teal-400' : 'text-neutral-600'}`}>{streak}</span>
+                                    <span className="text-neutral-500 text-[10px] mt-2 uppercase tracking-[0.4em]">{t.days}</span>
                                 </div>
                             </button>
                         </div>
+
                         <div className="mt-16 text-neutral-500 text-sm font-light italic text-center max-w-[250px]">
-                            {streak === 0 ? "اولین قدم، مهم‌ترین قدم است." : "تو قوی‌تر از تمایلاتت هستی."}
+                            {streak === 0 ? t.firstStep : t.quote}
                         </div>
                     </main>
-                    <footer className="w-full p-8 text-center z-10 opacity-30 text-[10px]">تداوم، کلید پیروزی است</footer>
+
+                    {/* مودال تنظیمات */}
+                    {showSettings && (
+                        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+                            <div className="w-full max-w-sm bg-[#0A0A0A] border border-neutral-800 rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-300">
+                                <div className={`flex justify-between items-center mb-8 ${lang === 'fa' ? 'flex-row' : 'flex-row-reverse'}`}>
+                                    <button onClick={() => setShowSettings(false)} className="p-2 text-neutral-500"><i data-lucide="x" className="w-5 h-5"></i></button>
+                                    <h3 className="text-xl font-medium">{t.settings}</h3>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                                        <span className="text-neutral-400 text-sm">{t.language}</span>
+                                        <button onClick={toggleLang} className="px-4 py-1.5 bg-teal-500/10 text-teal-400 rounded-lg border border-teal-500/20 text-xs font-bold uppercase">
+                                            {lang === 'fa' ? 'English' : 'فارسی'}
+                                        </button>
+                                    </div>
+
+                                    <div className="pt-4">
+                                        {!showConfirm ? (
+                                            <button onClick={() => setShowConfirm(true)} className="w-full py-4 text-red-500 bg-red-500/5 rounded-2xl border border-red-500/10 text-xs font-bold uppercase tracking-widest">
+                                                {t.resetBtn}
+                                            </button>
+                                        ) : (
+                                            <div className="text-center p-4 bg-red-500/5 border border-red-500/10 rounded-2xl">
+                                                <p className="text-[10px] text-neutral-400 mb-4 leading-relaxed">{t.resetDesc}</p>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => setShowConfirm(false)} className="flex-1 py-3 bg-neutral-800 rounded-xl text-[10px] font-bold uppercase">{t.close}</button>
+                                                    <button onClick={resetProgress} className="flex-1 py-3 bg-red-600 rounded-xl text-[10px] font-bold uppercase">{t.confirm}</button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <footer className="w-full p-8 text-center z-10 opacity-30 text-[10px] tracking-widest uppercase">{t.footer}</footer>
                 </div>
             );
         }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-        setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 500);
+        
+        const initIcons = () => { if (window.lucide) window.lucide.createIcons(); };
+        useEffect(() => initIcons());
+        setInterval(initIcons, 1000);
     </script>
 </body>
 </html>
+
