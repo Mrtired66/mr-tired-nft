@@ -145,16 +145,61 @@ svg {
   opacity: .35;
   font-size: 10px;
 }
+.glass-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 16px;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.02)
+  );
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255,255,255,0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    0 10px 30px rgba(0,0,0,0.4);
+}
+
+.glass-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+
+  font-size: 16px;
+}
+
+.glass-title {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: .3px;
+  color: rgba(255,255,255,0.9);
+}
+  
 </style>
 </head>
 
 <body>
 <div class="app">
-
-  <div class="top">
-    <div class="icon">🌍</div>
-    <div class="title">Add Target</div>
-    <div class="icon">⟳</div>
+  <div class="glass-top">
+  <div class="glass-icon">🌐</div>
+  <div class="glass-title">Add Target</div>
+  <div class="glass-icon">⟳</div>
   </div>
 
   <div class="center">
